@@ -1,5 +1,15 @@
 import { useState } from "react";
-import { Box, TextField, Button, Typography, Card, CardContent, Fade, Divider,} from "@mui/material";
+import {
+  Box,
+  TextField,
+  Button,
+  Typography,
+  Card,
+  CardContent,
+  Fade,
+  Divider,
+} from "@mui/material";
+
 import foggyday from "./assets/foggyday.jpg";
 import Thunderstorm from "./assets/Thunderstorm.jpg";
 import cloudy from "./assets/cloudy.jpg";
@@ -20,7 +30,7 @@ type ForecastDay = {
   min: number;
 };
 
- function Weather() {
+function Weather() {
   const [city, setCity] = useState("");
   const [weather, setWeather] = useState<WeatherData | null>(null);
   const [forecast, setForecast] = useState<ForecastDay[]>([]);
@@ -28,26 +38,14 @@ type ForecastDay = {
   const [error, setError] = useState("");
 
   const getBackground = (code?: number) => {
-   
     if (code === undefined) return `url(${sunnyday})`;
 
-    //Sunny
     if (code === 0) return `url(${sunnyday})`;
-    // Cloudy
-    if (code >= 1 && code <= 3) return `url(${cloudy})` ;
-
-    // Fog
+    if (code >= 1 && code <= 3) return `url(${cloudy})`;
     if (code === 45 || code === 48) return `url(${foggyday})`;
-
-    //RAin
-    if ((code >= 51 && code <= 67) || (code >= 80 && code <= 82)) {
+    if ((code >= 51 && code <= 67) || (code >= 80 && code <= 82))
       return `url(${rainyday})`;
-    }
-
-    // Snow
     if (code >= 71 && code <= 77) return `url(${snowyday})`;
-
-    // Thunderstorm
     if (code >= 95) return `url(${Thunderstorm})`;
 
     return `url(${sunnyday})`;
@@ -63,12 +61,12 @@ type ForecastDay = {
 
     try {
       const geoRes = await fetch(
-        `https://geocoding-api.open-meteo.com/v1/search?name=${city}`
+        `https://geocoding-api.open-meteo.com/v1/search?name=${city}`,
       );
       const geoData = await geoRes.json();
 
       if (!geoData.results?.length) {
-        throw new Error("City not found");
+        throw new Error("State/City Not Found!");
       }
 
       const { latitude, longitude } = geoData.results[0];
@@ -78,12 +76,10 @@ type ForecastDay = {
           `?latitude=${latitude}&longitude=${longitude}` +
           `&current_weather=true` +
           `&daily=temperature_2m_max,temperature_2m_min` +
-          `&timezone=auto`
+          `&timezone=auto`,
       );
 
       const data = await weatherRes.json();
-
-      console.log("Weather code:", data.current_weather.weathercode);
 
       setWeather({
         temperature: data.current_weather.temperature,
@@ -97,14 +93,15 @@ type ForecastDay = {
           time: t,
           max: data.daily.temperature_2m_max[i],
           min: data.daily.temperature_2m_min[i],
-        })
+        }),
       );
 
       setForecast(days.slice(0, 7));
     } catch (err: unknown) {
-      setError(err.message || "Error. Please try again later.");
-    } finally {
-      setLoading(false);
+      const message =
+        err instanceof Error ? err.message : "Error! Please try again later.";
+
+      setError(message);
     }
   };
 
@@ -112,8 +109,8 @@ type ForecastDay = {
     <Box
       key={weather?.weathercode}
       sx={{
-        minHeight: "100vh",
-        minWidth: "100vw",
+        width: "100vw",
+        height: "100vh",
         backgroundImage: getBackground(weather?.weathercode),
         backgroundSize: "cover",
         backgroundPosition: "center",
@@ -121,29 +118,27 @@ type ForecastDay = {
         display: "flex",
         justifyContent: "center",
         alignItems: "center",
-        objectFit: "cover",
         p: 2,
+        margin: 0,
       }}
-    > 
-   
+    >
       <Card
         sx={{
           width: "350px",
           minHeight: "500px",
-          maxWidth: "2000px",
           borderRadius: 6,
           background: "#ffffff",
           textAlign: "center",
         }}
       >
         <CardContent>
-          <Typography variant="h5" sx={{mt:2, mb:2, fontWeight: 800, display:"block", color:"#101828", fontSize:"20px"}}>
-           WEATHER TODAY
+          <Typography sx={{ mt: 2, mb: 2, fontWeight: 800, fontSize: "20px" }}>
+            WEATHER TODAY
           </Typography>
 
           <TextField
             fullWidth
-            label="Enter State or city"
+            label="Enter State or City"
             value={city}
             onChange={(e) => setCity(e.target.value)}
             sx={{ mt: 2 }}
@@ -160,22 +155,19 @@ type ForecastDay = {
           </Button>
 
           {error && (
-            <Typography color="error" sx={{ mt: 2 }}>
-              {error}
-            </Typography>
-          )} 
+            <Typography sx={{ mt: 2, color: "red" }}>{error}</Typography>
+          )}
 
           <Fade in={!!weather && !loading}>
             <Box sx={{ mt: 3 }}>
               {weather && (
                 <>
                   <Typography variant="h6">
-                    {weather.temperature}<sup>0</sup>C
+                    Temperature: {weather.temperature}
+                    <sup>°</sup>C
                   </Typography>
-                  <Typography>{weather.windspeed} km/h</Typography>
-                  <Typography variant="caption">
-                    {weather.time}
-                  </Typography>
+                  <Typography>Windspeed: {weather.windspeed} km/h</Typography>
+                  <Typography variant="caption">{weather.time}</Typography>
                 </>
               )}
             </Box>
@@ -184,10 +176,10 @@ type ForecastDay = {
           {forecast.length > 0 && (
             <>
               <Divider sx={{ my: 2 }} />
-              <Typography fontWeight={600} gutterBottom>
-                7 Days Forecast
-              </Typography>
-
+             <Typography sx={{ fontWeight: 600 }}>
+               7 Days Forecast
+               </Typography>
+               
               {forecast.map((day) => (
                 <Box
                   key={day.time}
@@ -201,7 +193,6 @@ type ForecastDay = {
                   <Typography>
                     {new Date(day.time).toDateString().slice(0, 10)}
                   </Typography>
-
                   <Typography>
                     {day.max} / {day.min}
                   </Typography>
@@ -213,5 +204,6 @@ type ForecastDay = {
       </Card>
     </Box>
   );
-};
+}
+
 export default Weather;
