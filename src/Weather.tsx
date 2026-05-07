@@ -107,21 +107,21 @@ function Weather() {
 
   return (
     <Box
-      key={weather?.weathercode}
-      sx={{
-        width: "100vw",
-        height: "100vh",
-        backgroundImage: getBackground(weather?.weathercode),
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-        backgroundRepeat: "no-repeat",
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        p: 2,
-        margin: 0,
-      }}
-    >
+  key={weather?.weathercode}
+  sx={{
+    width: "100%",
+    minHeight: "100vh",
+    backgroundImage: getBackground(weather?.weathercode),
+    backgroundSize: "cover",
+    backgroundPosition: "center",
+    backgroundRepeat: "no-repeat",
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    p: 2,
+    margin: 0,
+  }}
+>
       <Card
         sx={{
           width: "350px",
@@ -204,6 +204,6 @@ function Weather() {
       </Card>
     </Box>
   );
-}
+};
 
 export default Weather;
