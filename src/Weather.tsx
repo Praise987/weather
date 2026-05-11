@@ -41,12 +41,26 @@ function Weather() {
     if (code === undefined) return `url(${sunnyday})`;
 
     if (code === 0) return `url(${sunnyday})`;
-    if (code >= 1 && code <= 3) return `url(${cloudy})`;
-    if (code === 45 || code === 48) return `url(${foggyday})`;
-    if ((code >= 51 && code <= 67) || (code >= 80 && code <= 82))
+
+    if (code >= 1 && code <= 3) {
+      return `url(${cloudy})`;
+    }
+
+    if (code === 45 || code === 48) {
+      return `url(${foggyday})`;
+    }
+
+    if ((code >= 51 && code <= 67) || (code >= 80 && code <= 82)) {
       return `url(${rainyday})`;
-    if (code >= 71 && code <= 77) return `url(${snowyday})`;
-    if (code >= 95) return `url(${Thunderstorm})`;
+    }
+
+    if (code >= 71 && code <= 77) {
+      return `url(${snowyday})`;
+    }
+
+    if (code >= 95) {
+      return `url(${Thunderstorm})`;
+    }
 
     return `url(${sunnyday})`;
   };
@@ -61,8 +75,9 @@ function Weather() {
 
     try {
       const geoRes = await fetch(
-        `https://geocoding-api.open-meteo.com/v1/search?name=${city}`,
+        `https://geocoding-api.open-meteo.com/v1/search?name=${city}`
       );
+
       const geoData = await geoRes.json();
 
       if (!geoData.results?.length) {
@@ -76,7 +91,7 @@ function Weather() {
           `?latitude=${latitude}&longitude=${longitude}` +
           `&current_weather=true` +
           `&daily=temperature_2m_max,temperature_2m_min` +
-          `&timezone=auto`,
+          `&timezone=auto`
       );
 
       const data = await weatherRes.json();
@@ -93,35 +108,39 @@ function Weather() {
           time: t,
           max: data.daily.temperature_2m_max[i],
           min: data.daily.temperature_2m_min[i],
-        }),
+        })
       );
 
       setForecast(days.slice(0, 7));
     } catch (err: unknown) {
       const message =
-        err instanceof Error ? err.message : "Error! Please try again later.";
+        err instanceof Error
+          ? err.message
+          : "Error! Please try again later.";
 
       setError(message);
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
     <Box
-  key={weather?.weathercode}
-  sx={{
-    width: "100%",
-    minHeight: "100vh",
-    backgroundImage: getBackground(weather?.weathercode),
-    backgroundSize: "cover",
-    backgroundPosition: "center",
-    backgroundRepeat: "no-repeat",
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-    p: 2,
-    margin: 0,
-  }}
->
+      key={weather?.weathercode}
+      sx={{
+        width: "100%",
+        minHeight: "100vh",
+        backgroundImage: getBackground(weather?.weathercode),
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backgroundRepeat: "no-repeat",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        p: 2,
+        margin: 0,
+      }}
+    >
       <Card
         sx={{
           width: "350px",
@@ -129,10 +148,18 @@ function Weather() {
           borderRadius: 6,
           background: "#ffffff",
           textAlign: "center",
+          boxShadow: "0 8px 30px rgba(0,0,0,0.3)",
         }}
       >
         <CardContent>
-          <Typography sx={{ mt: 2, mb: 2, fontWeight: 800, fontSize: "20px" }}>
+          <Typography
+            sx={{
+              mt: 2,
+              mb: 2,
+              fontWeight: 800,
+              fontSize: "20px",
+            }}
+          >
             WEATHER TODAY
           </Typography>
 
@@ -147,7 +174,12 @@ function Weather() {
           <Button
             fullWidth
             variant="contained"
-            sx={{ mt: 2 }}
+            sx={{
+              mt: 2,
+              py: 1.2,
+              borderRadius: 3,
+              fontWeight: "bold",
+            }}
             onClick={fetchWeather}
             disabled={loading}
           >
@@ -155,7 +187,9 @@ function Weather() {
           </Button>
 
           {error && (
-            <Typography sx={{ mt: 2, color: "red" }}>{error}</Typography>
+            <Typography sx={{ mt: 2, color: "red" }}>
+              {error}
+            </Typography>
           )}
 
           <Fade in={!!weather && !loading}>
@@ -166,8 +200,14 @@ function Weather() {
                     Temperature: {weather.temperature}
                     <sup>°</sup>C
                   </Typography>
-                  <Typography>Windspeed: {weather.windspeed} km/h</Typography>
-                  <Typography variant="caption">{weather.time}</Typography>
+
+                  <Typography sx={{ mt: 1 }}>
+                    Windspeed: {weather.windspeed} km/h
+                  </Typography>
+
+                  <Typography variant="caption" sx={{ mt: 1 }}>
+                    {weather.time}
+                  </Typography>
                 </>
               )}
             </Box>
@@ -176,10 +216,11 @@ function Weather() {
           {forecast.length > 0 && (
             <>
               <Divider sx={{ my: 2 }} />
-             <Typography sx={{ fontWeight: 600 }}>
-               7 Days Forecast
-               </Typography>
-               
+
+              <Typography sx={{ fontWeight: 700, mb: 1 }}>
+                7 Days Forecast
+              </Typography>
+
               {forecast.map((day) => (
                 <Box
                   key={day.time}
@@ -187,14 +228,16 @@ function Weather() {
                     display: "flex",
                     justifyContent: "space-between",
                     px: 1,
-                    py: 0.5,
+                    py: 1,
+                    borderBottom: "1px solid #f0f0f0",
                   }}
                 >
                   <Typography>
                     {new Date(day.time).toDateString().slice(0, 10)}
                   </Typography>
+
                   <Typography>
-                    {day.max} / {day.min}
+                    {day.max}° / {day.min}°
                   </Typography>
                 </Box>
               ))}
@@ -204,6 +247,6 @@ function Weather() {
       </Card>
     </Box>
   );
-};
+}
 
 export default Weather;
